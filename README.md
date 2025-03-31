@@ -28,4 +28,4 @@ Run the app by running `Application.java` in your IDE or `mvn` in the command li
 This demo was inspired by the [LangChain4jCustomer Support Agent example](https://github.com/langchain4j/langchain4j-examples/tree/main/spring-boot-example/src/main/java/dev/langchain4j/example).
 
 I want to thank the LangChain4j, Quarkus, Spring AI, and Microsoft teams for their support in building this demo.
-Especially, I want to thank [@edeandrea](https://github.com/edeandrea) from the Quarkus team for his help in building the Quarkus implementation, [@tzolov](https://github.com/tzolov) from The Spring AI team for his help in building the Spring AI implementation and [@sohamda](https://github.com/sohamda) from Microsoft for the Semantic Kernel implementation.
+Especially, I want to thanmvn clean comnk [@edeandrea](https://github.com/edeandrea) from the Quarkus team for his help in building the Quarkus implementation, [@tzolov](https://github.com/tzolov) from The Spring AI team for his help in building the Spring AI implementation and [@sohamda](https://github.com/sohamda) from Microsoft for the Semantic Kernel implementation.
