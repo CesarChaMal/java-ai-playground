@@ -54,6 +54,23 @@ public class FlightService {
         System.out.println("Demo data initialized");
     }
 
+    public BookingDetails createBooking(String firstName, String lastName,
+                                        LocalDate date, String from, String to,
+                                        BookingClass bookingClass) {
+        Customer customer = new Customer();
+        customer.setFirstName(firstName);
+        customer.setLastName(lastName);
+
+        String bookingNumber = "10" + (db.getBookings().size() + 1);
+        Booking booking = new Booking(bookingNumber, date, customer, BookingStatus.CONFIRMED, from, to, bookingClass);
+        customer.getBookings().add(booking);
+
+        db.getCustomers().add(customer);
+        db.getBookings().add(booking);
+
+        return toBookingDetails(booking);
+    }
+
     public List<BookingDetails> getBookings() {
         return db.getBookings().stream().map(this::toBookingDetails).toList();
     }

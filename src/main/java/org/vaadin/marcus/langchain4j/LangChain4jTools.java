@@ -3,6 +3,7 @@ package org.vaadin.marcus.langchain4j;
 import dev.langchain4j.agent.tool.P;
 import dev.langchain4j.agent.tool.Tool;
 import org.springframework.stereotype.Component;
+import org.vaadin.marcus.data.BookingClass;
 import org.vaadin.marcus.service.BookingDetails;
 import org.vaadin.marcus.service.FlightService;
 
@@ -23,6 +24,17 @@ public class LangChain4jTools {
             """)
     public BookingDetails getBookingDetails(String bookingNumber, String firstName, String lastName) {
         return service.getBookingDetails(bookingNumber, firstName, lastName);
+    }
+
+    @Tool("""
+        Creates a new booking for the customer with the provided flight details.
+        """)
+    public BookingDetails createBooking(String firstName, String lastName,
+                                        LocalDate date,
+                                        @P("3-letter code for departure airport") String from,
+                                        @P("3-letter code for arrival airport") String to,
+                                        BookingClass bookingClass) {
+        return service.createBooking(firstName, lastName, date, from, to, bookingClass);
     }
 
     @Tool("""
