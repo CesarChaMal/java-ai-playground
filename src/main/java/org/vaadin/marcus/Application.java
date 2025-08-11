@@ -6,7 +6,12 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 
-@SpringBootApplication
+//@SpringBootApplication
+@SpringBootApplication(
+        excludeName = {
+                "dev.langchain4j.openai.spring.AutoConfig"
+        }
+)
 @Theme(value = "customer-support-agent")
 public class Application implements AppShellConfigurator {
 

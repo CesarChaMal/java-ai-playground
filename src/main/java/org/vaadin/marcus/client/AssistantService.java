@@ -5,6 +5,7 @@ import com.vaadin.hilla.BrowserCallable;
 import org.springframework.stereotype.Component;
 import org.vaadin.marcus.langchain4j.LangChain4jAssistant;
 import reactor.core.publisher.Flux;
+
 @Component
 @BrowserCallable
 @AnonymousAllowed

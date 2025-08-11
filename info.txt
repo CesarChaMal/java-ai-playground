@@ -1,7 +1,11 @@
 ollama pull mistral
 ollama run mistral
 
+ollama pull nomic-embed-text
+ollama run nomic-embed-text
+
 ./mvnw clean install
+
 
 //Compile Frontend Separately
 ./mvnw vaadin:build-frontend -X
@@ -32,3 +36,20 @@ rm package-lock.json
 ./mvnw install
 ./mvnw spring-boot:run -Dspring-boot.run.arguments="--debug"
 
+
+./mvnw spring-boot:run -Dspring-boot.run.profiles=openai
+./mvnw spring-boot:run -Dspring-boot.run.profiles=ollama
+
+./mvnw clean install && ./mvnw spring-boot:run -Dspring-boot.run.profiles=openai
+./mvnw clean install && ./mvnw spring-boot:run -Dspring-boot.run.profiles=ollama
+
+
+$ curl http://localhost:11434/api/tags
+
+# chat
+curl -s http://localhost:11434/api/generate \
+  -d '{"model":"mistral","prompt":"Say hello"}'
+
+# embeddings
+curl -s http://localhost:11434/api/embeddings \
+  -d '{"model":"nomic-embed-text","prompt":"hello world"}'
