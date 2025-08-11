@@ -36,7 +36,8 @@ rm package-lock.json
 ./mvnw install
 ./mvnw spring-boot:run -Dspring-boot.run.arguments="--debug"
 
-
+# default openai
+./mvnw spring-boot:run
 ./mvnw spring-boot:run -Dspring-boot.run.profiles=openai
 ./mvnw spring-boot:run -Dspring-boot.run.profiles=ollama
 
