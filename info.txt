@@ -54,3 +54,6 @@ curl -s http://localhost:11434/api/generate \
 # embeddings
 curl -s http://localhost:11434/api/embeddings \
   -d '{"model":"nomic-embed-text","prompt":"hello world"}'
+
+# Ollama tooling is not supported for now
+https://spring.io/blog/2024/07/26/spring-ai-with-ollama-tool-support
