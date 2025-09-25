@@ -7,6 +7,11 @@ public class LangChain4jProperties {
 
     // Used for Ollama only (OpenAI uses its own endpoint)
     private String baseUrl = "http://localhost:11434";
+    
+    // Content retriever configuration
+    private int maxResults = 2;
+    private double minScore = 0.6;
+    private int tokenLimit = 1000;
 
     private Ollama ollama = new Ollama();
     private OpenAi openAi = new OpenAi();
@@ -33,6 +38,30 @@ public class LangChain4jProperties {
 
     public void setOpenAi(OpenAi openAi) {
         this.openAi = openAi;
+    }
+
+    public int getMaxResults() {
+        return maxResults;
+    }
+
+    public void setMaxResults(int maxResults) {
+        this.maxResults = maxResults;
+    }
+
+    public double getMinScore() {
+        return minScore;
+    }
+
+    public void setMinScore(double minScore) {
+        this.minScore = minScore;
+    }
+
+    public int getTokenLimit() {
+        return tokenLimit;
+    }
+
+    public void setTokenLimit(int tokenLimit) {
+        this.tokenLimit = tokenLimit;
     }
 
     // ------- OLLAMA -------

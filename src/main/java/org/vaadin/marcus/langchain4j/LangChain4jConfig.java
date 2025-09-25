@@ -31,12 +31,7 @@ public class LangChain4jConfig {
         this.props = props;
     }
 
-//    @Bean
-//    ChatMemoryProvider chatMemoryProvider(Tokenizer tokenizer) {
-//        return chatId -> TokenWindowChatMemory.withMaxTokens(1000, tokenizer);
 
-    /// /        return chatId -> MessageWindowChatMemory.withMaxMessages(50);
-//    }
     @Bean
     EmbeddingStore<TextSegment> embeddingStore() {
         return new InMemoryEmbeddingStore<>();
@@ -51,8 +46,8 @@ public class LangChain4jConfig {
         return EmbeddingStoreContentRetriever.builder()
                 .embeddingStore(embeddingStore)
                 .embeddingModel(embeddingModel)
-                .maxResults(2)
-                .minScore(0.6)
+                .maxResults(props.getMaxResults())
+                .minScore(props.getMinScore())
                 .build();
     }
 
@@ -63,39 +58,38 @@ public class LangChain4jConfig {
 
         private final LangChain4jProperties props;
 
-        @Value("${langchain4j.ollama.tokenizer.model-name:gpt-4o-mini}")
-        private String tokenizerModelName;
+
 
         OllamaProvider(LangChain4jProperties props) {
             this.props = props;
         }
 
-//        @Bean
-        @Bean("ollamaModel")
+        @Bean
         public StreamingChatLanguageModel streamingChatModel() {
+            String modelName = props.getOllama().getChatModel().getModelName();
+            if (modelName == null || modelName.trim().isEmpty()) {
+                throw new IllegalArgumentException("Ollama chat model name is required but not provided");
+            }
             return OllamaStreamingChatModel.builder()
                     .baseUrl(props.getBaseUrl())
-                    .modelName(props.getOllama().getChatModel().getModelName())
+                    .modelName(modelName)
                     .temperature(props.getOllama().getChatModel().getTemperature())
                     .build();
         }
 
-//        @Bean
-        @Bean("ollamaEmbeddingModel")
+        @Bean
         public EmbeddingModel embeddingModel() {
+            String modelName = props.getOllama().getEmbeddingModel().getModelName();
+            if (modelName == null || modelName.trim().isEmpty()) {
+                throw new IllegalArgumentException("Ollama embedding model name is required but not provided");
+            }
             return OllamaEmbeddingModel.builder()
                     .baseUrl(props.getBaseUrl())
-                    .modelName(props.getOllama().getEmbeddingModel().getModelName())
+                    .modelName(modelName)
                     .build();
         }
 
-/*
-        @Bean
-        dev.langchain4j.model.Tokenizer tokenizer() {
-            // Use property-driven model name for token estimation
-            return new dev.langchain4j.model.openai.OpenAiTokenizer(tokenizerModelName);
-        }
-*/
+
 
         @Bean
         dev.langchain4j.model.Tokenizer tokenizer() {
@@ -106,7 +100,7 @@ public class LangChain4jConfig {
 
         @Bean
         ChatMemoryProvider chatMemoryProvider(dev.langchain4j.model.Tokenizer tokenizer) {
-            return chatId -> TokenWindowChatMemory.withMaxTokens(1000, tokenizer);
+            return chatId -> TokenWindowChatMemory.withMaxTokens(props.getTokenLimit(), tokenizer);
         }
     }
 
@@ -114,6 +108,8 @@ public class LangChain4jConfig {
     @Configuration
     @Profile("openai")
     static class OpenAiProvider {
+
+        private final LangChain4jProperties props;
 
         @Value("${langchain4j.open-ai.streaming-chat-model.api-key}")
         private String openAiApiKey;
@@ -130,9 +126,15 @@ public class LangChain4jConfig {
         @Value("${langchain4j.open-ai.embedding-model.model-name:text-embedding-3-small}")
         private String openAiEmbeddingModelName;
 
-//        @Bean
-        @Bean("openAiModel")
+        OpenAiProvider(LangChain4jProperties props) {
+            this.props = props;
+        }
+
+        @Bean
         public StreamingChatLanguageModel streamingChatModel() {
+            if (openAiApiKey == null || openAiApiKey.trim().isEmpty()) {
+                throw new IllegalArgumentException("OpenAI API key is required but not provided");
+            }
             return OpenAiStreamingChatModel.builder()
                     .apiKey(openAiApiKey)
                     .modelName(openAiModelName)
@@ -140,9 +142,11 @@ public class LangChain4jConfig {
                     .build();
         }
 
-//        @Bean
-        @Bean("openAiEmbeddingModel")
+        @Bean
         public EmbeddingModel embeddingModel() {
+            if (openAiEmbeddingApiKey == null || openAiEmbeddingApiKey.trim().isEmpty()) {
+                throw new IllegalArgumentException("OpenAI Embedding API key is required but not provided");
+            }
             return OpenAiEmbeddingModel.builder()
                     .apiKey(openAiEmbeddingApiKey)
                     .modelName(openAiEmbeddingModelName)
@@ -157,7 +161,7 @@ public class LangChain4jConfig {
 
         @Bean
         ChatMemoryProvider chatMemoryProvider(dev.langchain4j.model.Tokenizer tokenizer) {
-            return chatId -> TokenWindowChatMemory.withMaxTokens(1000, tokenizer);
+            return chatId -> TokenWindowChatMemory.withMaxTokens(props.getTokenLimit(), tokenizer);
         }
     }
 }
