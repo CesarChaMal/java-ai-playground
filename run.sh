@@ -1,14 +1,41 @@
 #!/bin/bash
 
-echo "Starting Java AI Playground..."
+echo "Java AI Playground Setup"
+echo "========================"
 
-# Load environment variables from .env file
+# Ask user to choose provider
+echo "Choose AI Provider:"
+echo "1) OpenAI"
+echo "2) Ollama"
+read -p "Enter choice (1-2): " choice
+
+case $choice in
+    1)
+        AI_PROVIDER="openai"
+        ;;
+    2)
+        AI_PROVIDER="ollama"
+        ;;
+    *)
+        echo "Invalid choice. Defaulting to OpenAI."
+        AI_PROVIDER="openai"
+        ;;
+esac
+
+# Update .env file
 if [ -f .env ]; then
-    export $(grep -v '^#' .env | xargs)
+    sed -i.bak "s/^AI_PROVIDER=.*/AI_PROVIDER=$AI_PROVIDER/" .env
+else
+    echo "AI_PROVIDER=$AI_PROVIDER" > .env
+    echo "OPENAI_API_KEY=your-openai-api-key-here" >> .env
+    echo "OLLAMA_BASE_URL=http://localhost:11434" >> .env
+    echo "OLLAMA_CHAT_MODEL=mistral" >> .env
+    echo "OLLAMA_EMBEDDING_MODEL=nomic-embed-text" >> .env
+    echo "SERVER_PORT=8080" >> .env
 fi
 
-# Default to openai if AI_PROVIDER is not set
-AI_PROVIDER=${AI_PROVIDER:-openai}
+# Load environment variables from .env file
+export $(grep -v '^#' .env | xargs)
 
 echo "Using AI Provider: $AI_PROVIDER"
 
@@ -43,9 +70,24 @@ elif [ "$AI_PROVIDER" = "ollama" ]; then
         echo "Ollama is already running."
     fi
     
-    echo "Ensuring required models are available..."
-    ollama pull ${OLLAMA_CHAT_MODEL:-mistral}
-    ollama pull ${OLLAMA_EMBEDDING_MODEL:-nomic-embed-text}
+    echo "Checking and downloading required models..."
+    
+    # Check and pull chat model
+    if ! ollama list | grep -q "${OLLAMA_CHAT_MODEL:-mistral}"; then
+        echo "Downloading chat model: ${OLLAMA_CHAT_MODEL:-mistral}..."
+        ollama pull ${OLLAMA_CHAT_MODEL:-mistral}
+    else
+        echo "Chat model ${OLLAMA_CHAT_MODEL:-mistral} already available."
+    fi
+    
+    # Check and pull embedding model
+    if ! ollama list | grep -q "${OLLAMA_EMBEDDING_MODEL:-nomic-embed-text}"; then
+        echo "Downloading embedding model: ${OLLAMA_EMBEDDING_MODEL:-nomic-embed-text}..."
+        ollama pull ${OLLAMA_EMBEDDING_MODEL:-nomic-embed-text}
+    else
+        echo "Embedding model ${OLLAMA_EMBEDDING_MODEL:-nomic-embed-text} already available."
+    fi
+    
     echo "Using Ollama with models: ${OLLAMA_CHAT_MODEL:-mistral}, ${OLLAMA_EMBEDDING_MODEL:-nomic-embed-text}"
     
 else

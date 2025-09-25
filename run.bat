@@ -1,17 +1,40 @@
 @echo off
-echo Starting Java AI Playground...
+echo Java AI Playground Setup
+echo ========================
 
-REM Load environment variables from .env file
-if exist .env (
-    for /f "usebackq tokens=1,2 delims==" %%a in (".env") do (
-        if not "%%a"=="" if not "%%a:~0,1%"=="#" (
-            set "%%a=%%b"
-        )
-    )
+REM Ask user to choose provider
+echo Choose AI Provider:
+echo 1) OpenAI
+echo 2) Ollama
+set /p choice="Enter choice (1-2): "
+
+if "%choice%"=="1" (
+    set AI_PROVIDER=openai
+) else if "%choice%"=="2" (
+    set AI_PROVIDER=ollama
+) else (
+    echo Invalid choice. Defaulting to OpenAI.
+    set AI_PROVIDER=openai
 )
 
-REM Default to openai if AI_PROVIDER is not set
-if "%AI_PROVIDER%"=="" set AI_PROVIDER=openai
+REM Update .env file
+if exist .env (
+    powershell -Command "(Get-Content .env) -replace '^AI_PROVIDER=.*', 'AI_PROVIDER=%AI_PROVIDER%' | Set-Content .env"
+) else (
+    echo AI_PROVIDER=%AI_PROVIDER% > .env
+    echo OPENAI_API_KEY=your-openai-api-key-here >> .env
+    echo OLLAMA_BASE_URL=http://localhost:11434 >> .env
+    echo OLLAMA_CHAT_MODEL=mistral >> .env
+    echo OLLAMA_EMBEDDING_MODEL=nomic-embed-text >> .env
+    echo SERVER_PORT=8080 >> .env
+)
+
+REM Load environment variables from .env file
+for /f "usebackq tokens=1,2 delims==" %%a in (".env") do (
+    if not "%%a"=="" if not "%%a:~0,1%"=="#" (
+        set "%%a=%%b"
+    )
+)
 
 echo Using AI Provider: %AI_PROVIDER%
 
@@ -43,9 +66,26 @@ if /i "%AI_PROVIDER%"=="openai" (
         echo Ollama is already running.
     )
     
-    echo Ensuring required models are available...
-    ollama pull %OLLAMA_CHAT_MODEL%
-    ollama pull %OLLAMA_EMBEDDING_MODEL%
+    echo Checking and downloading required models...
+    
+    REM Check and pull chat model
+    ollama list | findstr /C:"%OLLAMA_CHAT_MODEL%" >nul
+    if %errorlevel% neq 0 (
+        echo Downloading chat model: %OLLAMA_CHAT_MODEL%...
+        ollama pull %OLLAMA_CHAT_MODEL%
+    ) else (
+        echo Chat model %OLLAMA_CHAT_MODEL% already available.
+    )
+    
+    REM Check and pull embedding model
+    ollama list | findstr /C:"%OLLAMA_EMBEDDING_MODEL%" >nul
+    if %errorlevel% neq 0 (
+        echo Downloading embedding model: %OLLAMA_EMBEDDING_MODEL%...
+        ollama pull %OLLAMA_EMBEDDING_MODEL%
+    ) else (
+        echo Embedding model %OLLAMA_EMBEDDING_MODEL% already available.
+    )
+    
     echo Using Ollama with models: %OLLAMA_CHAT_MODEL%, %OLLAMA_EMBEDDING_MODEL%
 ) else (
     echo ERROR: Invalid AI_PROVIDER '%AI_PROVIDER%'. Must be 'openai' or 'ollama'.

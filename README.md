@@ -19,10 +19,30 @@ The UI is built using [Vaadin Hilla](https://vaadin.com) and the backend is buil
 
 ## Requirements
 - Java 17+
-- OpenAI API key in `OPENAI_API_KEY` environment variable
+- Either OpenAI API key or Ollama installed locally
+
+## Configuration
+1. Copy `.env` file and configure:
+   - Set `AI_PROVIDER=openai` or `AI_PROVIDER=ollama`
+   - For OpenAI: Set `OPENAI_API_KEY=your-api-key`
+   - For Ollama: Configure model names (defaults: mistral, nomic-embed-text)
 
 ## Running
-Run the app by running `Application.java` in your IDE or `mvn` in the command line.
+**Windows:**
+```bash
+run.bat
+```
+
+**Unix/Linux/macOS:**
+```bash
+./run.sh
+```
+
+Or run manually:
+```bash
+./mvnw spring-boot:run -Dspring-boot.run.profiles=openai
+./mvnw spring-boot:run -Dspring-boot.run.profiles=ollama
+```
 
 ## Thanks
 This demo was inspired by the [LangChain4jCustomer Support Agent example](https://github.com/langchain4j/langchain4j-examples/tree/main/spring-boot-example/src/main/java/dev/langchain4j/example).
